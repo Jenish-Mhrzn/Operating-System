@@ -1,0 +1,91 @@
+#include <iostream>
+#include <climits>
+using namespace std;
+
+// Structure to represent a process
+struct Process {
+    int pid;  // Process ID
+    int bt;   // Burst Time
+    int art;  // Arrival Time
+    int wt;   // Waiting Time
+    int tat;  // Turnaround Time
+};
+
+// Function to implement SRTN
+void srtn() {
+    int n;
+    cout << "Enter number of processes: ";
+    cin >> n;
+
+    Process processes[n];
+    int remaining_time[n]; // To store the remaining burst time of processes
+
+    // Input arrival time and burst time for each process
+    for (int i = 0; i < n; i++) {
+        processes[i].pid = i + 1;
+        cout << "Enter Arrival Time for Process P" << i + 1 << ": ";
+        cin >> processes[i].art;
+        cout << "Enter Burst Time for Process P" << i + 1 << ": ";
+        cin >> processes[i].bt;
+        remaining_time[i] = processes[i].bt;
+    }
+
+    int complete = 0, t = 0, shortest = -1, min_remaining_time = INT_MAX;
+    bool check = false;
+    int finish_time;
+    float total_wt = 0, total_tat = 0;
+
+    while (complete != n) {
+        // Find the process with the shortest remaining time that has arrived
+        for (int j = 0; j < n; j++) {
+            if (processes[j].art <= t && remaining_time[j] > 0 && remaining_time[j] < min_remaining_time) {
+                shortest = j;
+                min_remaining_time = remaining_time[j];
+                check = true;
+            }
+        }
+
+        if (!check) {
+            t++;
+            continue;
+        }
+
+        // Decrease remaining time of the chosen process
+        remaining_time[shortest]--;
+        min_remaining_time = remaining_time[shortest];
+
+        if (remaining_time[shortest] == 0) {
+            min_remaining_time = INT_MAX; // Reset the minimum remaining time
+            complete++;
+            check = false;
+
+            finish_time = t + 1;
+            processes[shortest].wt = finish_time - processes[shortest].bt - processes[shortest].art;
+
+            if (processes[shortest].wt < 0)
+                processes[shortest].wt = 0;
+
+            processes[shortest].tat = processes[shortest].bt + processes[shortest].wt;
+        }
+
+        t++;
+    }
+
+    // Display results
+    cout << "\nProcess\tArrival Time\tBurst Time\tWaiting Time\tTurnaround Time\n";
+    for (int i = 0; i < n; i++) {
+        total_wt += processes[i].wt;
+        total_tat += processes[i].tat;
+        cout << "P" << processes[i].pid << "\t\t" << processes[i].art << "\t\t" << processes[i].bt << "\t\t" 
+             << processes[i].wt << "\t\t" << processes[i].tat << endl;
+    }
+
+    cout << "\nAverage Waiting Time: " << total_wt / n;
+    cout << "\nAverage Turnaround Time: " << total_tat / n << endl;
+}
+
+int main() {
+    // Run the SRTN function
+    srtn();
+    return 0;
+}
