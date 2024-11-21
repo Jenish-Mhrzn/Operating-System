@@ -1,0 +1,77 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+struct Process {
+    int pid;     // Process ID
+    int bt;      // Burst Time
+    int art;     // Arrival Time
+    int wt;      // Waiting Time
+    int tat;     // Turnaround Time
+};
+
+// Function to implement Round Robin Scheduling
+void roundRobin() {
+    int n, timeQuantum;
+    cout << "Enter the number of processes: ";
+    cin >> n;
+
+    vector<Process> processes(n);
+    vector<int> remaining_bt(n);  // Remaining burst time for each process
+
+    // Input process details
+    for (int i = 0; i < n; i++) {
+        processes[i].pid = i + 1;
+        cout << "Enter Arrival Time for Process P" << i + 1 << ": ";
+        cin >> processes[i].art;
+        cout << "Enter Burst Time for Process P" << i + 1 << ": ";
+        cin >> processes[i].bt;
+        remaining_bt[i] = processes[i].bt;  // Initially, remaining burst time equals burst time
+    }
+
+    cout << "Enter Time Quantum: ";
+    cin >> timeQuantum;
+
+    int t = 0;         // Current time
+    bool done;         // To check if all processes are complete
+    float total_wt = 0, total_tat = 0;
+
+    while (true) {
+        done = true;
+
+        for (int i = 0; i < n; i++) {
+            if (remaining_bt[i] > 0) {
+                done = false;  // There are processes still to execute
+
+                if (remaining_bt[i] > timeQuantum) {
+                    t += timeQuantum;
+                    remaining_bt[i] -= timeQuantum;
+                } else {
+                    t += remaining_bt[i];
+                    processes[i].wt = t - processes[i].bt - processes[i].art; // Calculate waiting time
+                    remaining_bt[i] = 0;
+                }
+            }
+        }
+
+        if (done) break;  // Exit if all processes are completed
+    }
+
+    // Calculate Turnaround Time and display results
+    cout << "\nProcess\tArrival Time\tBurst Time\tWaiting Time\tTurnaround Time\n";
+    for (int i = 0; i < n; i++) {
+        processes[i].tat = processes[i].bt + processes[i].wt;  // Turnaround time = Burst time + Waiting time
+        total_wt += processes[i].wt;
+        total_tat += processes[i].tat;
+        cout << "P" << processes[i].pid << "\t\t" << processes[i].art << "\t\t" << processes[i].bt << "\t\t" 
+             << processes[i].wt << "\t\t" << processes[i].tat << endl;
+    }
+
+    cout << "\nAverage Waiting Time: " << total_wt / n;
+    cout << "\nAverage Turnaround Time: " << total_tat / n << endl;
+}
+
+int main() {
+    roundRobin();
+    return 0;
+}
