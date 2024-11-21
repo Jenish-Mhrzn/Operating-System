@@ -1,0 +1,64 @@
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+// Structure to represent a process
+struct Process {
+    int pid;   // Process ID
+    int bt;    // Burst Time
+    int wt;    // Waiting Time
+    int tat;   // Turnaround Time
+};
+
+bool compareByBurstTime(Process a, Process b) {
+    return a.bt < b.bt; // Sort by burst time (ascending order)
+}
+
+void sjf() {
+    int n;
+    cout << "Enter number of processes: ";
+    cin >> n;
+
+    Process processes[n];
+
+    // Input burst time for each process
+    for (int i = 0; i < n; i++) {
+        processes[i].pid = i + 1; // Assign process ID
+        cout << "Enter Burst Time for Process P" << i + 1 << ": ";
+        cin >> processes[i].bt;
+    }
+
+    // Sort processes by burst time
+    sort(processes, processes + n, compareByBurstTime);
+
+    // Calculate waiting time
+    processes[0].wt = 0; // First process always has 0 waiting time
+    for (int i = 1; i < n; i++) {
+        processes[i].wt = processes[i - 1].wt + processes[i - 1].bt;
+    }
+
+    // Calculate turnaround time
+    for (int i = 0; i < n; i++) {
+        processes[i].tat = processes[i].bt + processes[i].wt;
+    }
+
+    // Display results
+    cout << "\nProcess\tBurst Time\tWaiting Time\tTurnaround Time\n";
+    float total_wt = 0, total_tat = 0;
+    for (int i = 0; i < n; i++) {
+        total_wt += processes[i].wt;
+        total_tat += processes[i].tat;
+        cout << "P" << processes[i].pid << "\t\t" << processes[i].bt << "\t\t" 
+             << processes[i].wt << "\t\t" << processes[i].tat << endl;
+    }
+
+    // Calculate and display averages
+    cout << "\nAverage Waiting Time: " << total_wt / n;
+    cout << "\nAverage Turnaround Time: " << total_tat / n << endl;
+}
+
+int main() {
+    // Run the SJF function
+    sjf();
+    return 0;
+}
