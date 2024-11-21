@@ -1,0 +1,50 @@
+#include <iostream>
+#include<thread>
+#include<atomic>
+using namespace std;
+
+const int NUM_THREADS = 2;
+atomic<int> turn;
+atomic<bool> flag[NUM_THREADS];
+
+void lock(int threadId) {
+    int other = 1 - threadId;
+    flag[threadId].store(true);
+    turn.store(other);
+
+    while (flag[other].load() && turn.load() == other) {   
+    }
+}
+
+void unlock(int threadId) {
+    flag[threadId].store(false);
+}
+
+void criticalSection(int threadId) {
+    cout << "Thread " << threadId << " is in critical section." << endl;
+    this_thread::sleep_for(chrono::milliseconds(100));
+}
+
+void threadFunction(int threadId) {
+    for (int i = 0; i < 5; ++i) {
+        lock(threadId);
+        criticalSection(threadId);
+        unlock(threadId);
+        
+        this_thread::sleep_for(chrono::milliseconds(50));
+    }
+}
+
+int main() {
+    turn.store(0);
+    flag[0].store(false);
+    flag[1].store(false);
+
+    thread t1(threadFunction, 0);
+    thread t2(threadFunction, 1);
+
+    t1.join();
+    t2.join();
+
+    return 0;
+}
