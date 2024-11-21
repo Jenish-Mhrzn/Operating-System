@@ -1,0 +1,55 @@
+#include <iostream>
+using namespace std;
+
+void fcfs() {
+    int n;                // Number of processes
+    int bt[20], wt[20], tat[20]; // Burst time, Waiting time, Turnaround time arrays
+    float avwt = 0, avtat = 0;   // Average waiting time, Average turnaround time
+
+    cout << "Enter number of processes: ";
+    cin >> n;
+
+    cout << "\nEnter Burst Time for each process\n";
+    for (int i = 0; i < n; i++) {
+        cout << "Burst time[" << i + 1 << "]: ";
+        cin >> bt[i];
+    }
+
+    // First process always has zero waiting time
+    wt[0] = 0;
+
+    // Calculate waiting time for each process
+    for (int i = 1; i < n; i++) {
+        wt[i] = 0;
+        for (int j = 0; j < i; j++) {
+            wt[i] += bt[j];
+        }
+    }
+
+    // Display table headers
+    cout << "\nProcess\t\tBurst Time\tWaiting Time\tTurnaround Time\n";
+
+    // Calculate turnaround time and average times
+    for (int i = 0; i < n; i++) {
+        tat[i] = bt[i] + wt[i];  // Turnaround time = Burst time + Waiting time
+        avwt += wt[i];
+        avtat += tat[i];
+
+        // Print details for each process
+        cout << "P[" << i + 1 << "]\t\t" << bt[i] << "\t\t" << wt[i] << "\t\t" << tat[i] << endl;
+    }
+
+    // Calculate averages
+    avwt = avwt / n;
+    avtat = avtat / n;
+
+    // Display averages
+    cout << "\nAverage Waiting Time: " << avwt;
+    cout << "\nAverage Turnaround Time: " << avtat << endl;
+}
+
+int main() {
+    // Run the FCFS function
+    fcfs();
+    return 0;
+}
