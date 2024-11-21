@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <semaphore.h>
+
+#define NUM_THREADS 2
+#define COUNT 10
+
+int shared_variable = 0;
+sem_t semaphore;
+
+void *thread_function(void *arg) {
+    int thread_id = *((int *)arg);
+
+    for (int i = 0; i < COUNT; ++i) {
+        sem_wait(&semaphore);  // Wait until semaphore is available
+
+        // Critical section
+        printf("Thread %d in critical section (iteration %d)\n", thread_id, i+1);
+        shared_variable++;
+        printf("Shared variable value after increment: %d\n", shared_variable);
+
+        sem_post(&semaphore);  // Release semaphore
+    }
+
+    pthread_exit(NULL);
+}
+
+int main() {
+    pthread_t threads[NUM_THREADS];
+    int thread_ids[NUM_THREADS] = {0, 1};
+
+    sem_init(&semaphore, 0, 1);  // Initialize semaphore with initial value 1
+
+    // Create threads
+    for (int i = 0; i < NUM_THREADS; ++i) {
+        int result = pthread_create(&threads[i], NULL, thread_function, &thread_ids[i]);
+        if (result != 0) {
+            fprintf(stderr, "Error creating thread %d\n", i);
+            return 1;
+        }
+    }
+
+    // Join threads
+    for (int i = 0; i < NUM_THREADS; ++i) {
+        pthread_join(threads[i], NULL);
+    }
+    sem_destroy(&semaphore);  // Destroy semaphore
+    return 0;
+}
