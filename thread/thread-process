@@ -1,0 +1,31 @@
+#include<stdio.h> 
+#include<pthread.h> 
+#include<unistd.h> 
+#include<stdlib.h> 
+#include<time.h> 
+void * show(void * u){ 
+int pid; 
+printf("OLD BOY\n"); 
+printf("\nThis is thread its pid is no. %d\n",getpid()); 
+} 
+int main(){ 
+int pid; 
+pthread_t tid; 
+pthread_t tid_child; 
+time_t t; 
+time(&t); 
+printf("\nThis program has been writeen at (date and time): %s", ctime(&t)); 
+pthread_create(&tid,NULL,&show,NULL); 
+printf("Main thread\n"); 
+printf("\nThe pid of main thread is %d: \n",getpid()); 
+printf("\nThe ppid of main thread is %d: \n",getppid()); 
+pid=fork(); 
+if(pid==0){ 
+printf("\nThis is child\n"); 
+printf("\n The id of child is %d\n",getpid()); 
+printf("\n My parent is %d: ",getppid()); 
+exit(0); 
+} 
+pthread_join(tid,NULL); 
+return 0; 
+}
